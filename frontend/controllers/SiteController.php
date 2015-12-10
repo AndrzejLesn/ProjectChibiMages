@@ -12,6 +12,7 @@ use yii\web\BadRequestHttpException;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
+use app\models\EntryForm;
 
 /**
  * Site controller
@@ -21,6 +22,26 @@ class SiteController extends Controller
     /**
      * @inheritdoc
      */
+    public function actionSay($message="Welcome",$mes="Cruel",$wiad="World") {
+        return $this->render('say', ['message' => $message.$mes.$wiad]);
+    }
+    public function actionWrite($message="Welcome",$mes="Cruel",$wiad="World") {
+        return $this->render('write', ['message' => $message.$mes.$wiad]);
+    }
+    
+    public function actionEntry()
+    {
+        $model = new EntryForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            // valid data received in $model
+
+            return $this->render('entry-confirm', ['model' => $model]);
+        } else {
+            // either the page is initially displayed or there is some validation error
+            return $this->render('entry', ['model' => $model]);
+        }
+    }
     public function behaviors()
     {
         return [
@@ -72,7 +93,11 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        if (!\Yii::$app->user->isGuest) {
+            return $this->render('about');
+        }
+        else
+        {return $this->render('index');}
     }
 
     /**
@@ -104,6 +129,7 @@ class SiteController extends Controller
     public function actionLogout()
     {
         Yii::$app->user->logout();
+        //return $this->render('about');
 
         return $this->goHome();
     }
